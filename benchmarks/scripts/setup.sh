@@ -1,6 +1,7 @@
 #!/bin/bash
 
-source ./path.env
+LIBPATH=$(dirname "$(realpath "$0")")
+source "$LIBPATH/path.env"
 
 echo "creating folder for SuiteSpatse library"
 echo "path: $SUITE_SPARSE_PATH/SuiteSparse"
