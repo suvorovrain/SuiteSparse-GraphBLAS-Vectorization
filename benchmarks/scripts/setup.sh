@@ -1,6 +1,7 @@
 #!/bin/bash
 
-SUITE_SPARSE_PATH=$(find ~ -type d -name "SuiteSparse-GraphBLAS-Vectorization")
+source ./path.env
+
 echo "creating folder for SuiteSpatse library"
 echo "path: $SUITE_SPARSE_PATH/SuiteSparse"
 mkdir "$SUITE_SPARSE_PATH/SuiteSparse"
