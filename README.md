@@ -6,7 +6,7 @@ Install SuiteSparse - `/scripts/setup.sh`
 
 *(optionally)*`/scripts/optimizations_settings.sh` - machine optimization (Sudo required. Run before running benchmark)
 
-# For x86_64
+## For x86_64
 
 `/scripts/makelibx86.sh` - building SuiteSparse with and without AVX
 
@@ -14,13 +14,13 @@ Install SuiteSparse - `/scripts/setup.sh`
 
 `/scripts/runbenchx86.sh` - run benchmarks 
 
-# For RISCV-64
+## For RISCV-64
 
 Install riscv-gnu-toolchain https://github.com/riscv-collab/riscv-gnu-toolchain
 
 Install qemu-user https://www.qemu.org/download/#source
 
-`/scripts/makelibriscv.sh` - building SuiteSparse with and without AVX
+`/scripts/makelibriscv.sh` - building SuiteSparse with and without RVV
 
 `/scripts/buildtestriscv.sh` - compile benchmark binary files
 
