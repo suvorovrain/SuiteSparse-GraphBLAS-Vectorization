@@ -1,3 +1,10 @@
 SuiteSparse/
 benchmarks/avx
 benchmarks/noavx
+tests/binaries
+tests/matrices
+tests/results
+.vscode
+tests/venv
+tests/aoa.txt
+
