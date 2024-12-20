@@ -1,5 +1,3 @@
-#!/bin/bash
-
 LIBPATH=$(dirname "$(realpath "$0")")
 source "$LIBPATH/path.env"
 
@@ -16,16 +14,26 @@ https://suitesparse-collection-website.herokuapp.com/MM/Hohn/sinc12.tar.gz https
 https://suitesparse-collection-website.herokuapp.com/MM/Bai/cryg10000.tar.gz https://suitesparse-collection-website.herokuapp.com/MM/Goodwin/Goodwin_030.tar.gz #10000
 https://suitesparse-collection-website.herokuapp.com/MM/GHS_indef/stokes64.tar.gz https://suitesparse-collection-website.herokuapp.com/MM/FEMLAB/sme3Da.tar.gz #12500
 https://suitesparse-collection-website.herokuapp.com/MM/Hohn/fd18.tar.gz https://suitesparse-collection-website.herokuapp.com/MM/Simon/olafu.tar.gz #16000
-https://suitesparse-collection-website.herokuapp.com/MM/Schenk_IBMNA/c-49.tar.gz https://suitesparse-collection-website.herokuapp.com/MM/Simon/raefsky3.tar.gz #21000
-https://suitesparse-collection-website.herokuapp.com/MM/Boeing/bcsstm37.tar.gz https://suitesparse-collection-website.herokuapp.com/MM/TSOPF/TSOPF_RS_b2052_c1.tar.gz #25500
-https://suitesparse-collection-website.herokuapp.com/MM/Boeing/bcsstm35.tar.gz https://suitesparse-collection-website.herokuapp.com/MM/TSOPF/TSOPF_FS_b162_c3.tar.gz #30500
+# https://suitesparse-collection-website.herokuapp.com/MM/Schenk_IBMNA/c-49.tar.gz https://suitesparse-collection-website.herokuapp.com/MM/Simon/raefsky3.tar.gz #21000
+# https://suitesparse-collection-website.herokuapp.com/MM/Boeing/bcsstm37.tar.gz https://suitesparse-collection-website.herokuapp.com/MM/TSOPF/TSOPF_RS_b2052_c1.tar.gz #25500
+# https://suitesparse-collection-website.herokuapp.com/MM/Boeing/bcsstm35.tar.gz https://suitesparse-collection-website.herokuapp.com/MM/TSOPF/TSOPF_FS_b162_c3.tar.gz #30500
 )
-mkdir "$SUITE_SPARSE_PATH/tests/matrices"
-cd "$SUITE_SPARSE_PATH/tests/matrices"
 
+echo "AVX TESTS"
+cd "$SUITE_SPARSE_PATH/tests/" || exit
 for link in "${links[@]}"; do
-    filename=$(basename "$link")
-    wget "$link" -O "$filename"
-    tar -xzvf "$filename"
-    rm "$filename"
+    base_name=$(basename "$link")
+    filename=${base_name%%.*}
+    echo "Matrix: $filename"
+    ./binaries/testavx avx "$filename"
 done
+
+echo "NOAVX TESTS"
+cd "$SUITE_SPARSE_PATH/tests/" || exit
+for link in "${links[@]}"; do
+    base_name=$(basename "$link")
+    filename=${base_name%%.*}
+    echo "Matrix: $filename"
+    ./binaries/testavx noavx "$filename"
+done
+
