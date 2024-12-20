@@ -235,7 +235,7 @@ int main(int argc, char **argv)
         //      return 1;
         //  }
 
-        CLEAN C MATRIX for (GrB_Index i = 0; i < nrows; i++)
+        for (GrB_Index i = 0; i < nrows; i++)
         {
             for (GrB_Index j = 0; j < ncols; j++)
             {
