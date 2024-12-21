@@ -49,8 +49,6 @@ def read_and_plot(filename):
     num_rows = int(data[1])
     num_nonzero = int(data[2])
 
-    avg_time = Decimal(data[-1]) if data[-1] else None
-
     plt.figure(figsize=(12,8))
 
     plt.hist(numbers, bins=30, edgecolor='black')
