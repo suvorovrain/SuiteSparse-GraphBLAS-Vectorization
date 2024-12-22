@@ -37,7 +37,7 @@ for link in "${links[@]}"; do
     base_name=$(basename "$link")
     filename=${base_name%%.*}
     echo "Matrix: $filename"
-    qemu-riscv64 -L /opt/riscv/sysroot -E LD_LIBRARY_PATH="$GRAPH_BLAS_PATH/build-rvv/":"$GRAPH_BLAS_PATH/../LAGraph/build-rvv/":/opt/riscv/sysroot/ "$SUITE_SPARSE_PATH/tests/binaries/testrvv" rvv "$filename"
+    qemu-riscv64 -L /opt/riscv/sysroot -E LD_LIBRARY_PATH="$GRAPH_BLAS_PATH/build-norvv/":"$GRAPH_BLAS_PATH/../LAGraph/build-norvv/":/opt/riscv/sysroot/ "$SUITE_SPARSE_PATH/tests/binaries/testnorvv" norvv "$filename"
 done
 
 

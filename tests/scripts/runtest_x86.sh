@@ -37,6 +37,6 @@ for link in "${links[@]}"; do
     base_name=$(basename "$link")
     filename=${base_name%%.*}
     echo "Matrix: $filename"
-    ./binaries/testavx noavx "$filename" "$save"
+    ./binaries/testnoavx noavx "$filename" "$save"
 done
 

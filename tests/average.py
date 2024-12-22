@@ -48,5 +48,5 @@ for extension in extensions:
     file_path = os.path.join(current_dir, path)
     plot_filename = os.path.splitext(path)[0] + '_avgplot.png'
     plt.savefig(os.path.join(current_dir, plot_filename))
-    plt.close()
     print(f"Graph saved into: {plot_filename}\n\n")
+plt.close()

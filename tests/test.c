@@ -13,11 +13,7 @@ void create_directory(const char *path)
     struct stat st = {0};
     if (stat(path, &st) == -1)
     {
-#ifdef _WIN32
-        _mkdir(path);
-#else
         mkdir(path, 0777);
-#endif
     }
 }
 
@@ -26,7 +22,7 @@ int get_nonzero_count(const char *filename)
     FILE *file = fopen(filename, "r");
     if (file == NULL)
     {
-        fprintf(stderr, "Error opening file");
+        fprintf(stderr, "Error opening file: %s\n", filename);
         return -1;
     }
 
@@ -42,7 +38,7 @@ int get_nonzero_count(const char *filename)
     }
     if (sscanf(line, "%d %d %d", &rows, &cols, &nonzeros) != 3)
     {
-        fprintf(stderr, "Error reading matrix dimensions\n");
+        fprintf(stderr, "Error reading matrix %s dimensions\n", filename);
         fclose(file);
         return -1;
     }
@@ -51,8 +47,15 @@ int get_nonzero_count(const char *filename)
     return nonzeros;
 }
 
-int save_result_matrix(char *extension, int number, GrB_Matrix C)
+int save_result_matrix(char *extension, char *matrix_name, int number, GrB_Matrix C)
 {
+    create_directory("results");
+    char dirpath1[256];
+    snprintf(dirpath1, sizeof(dirpath1), "results/%sresults/", extension);
+    create_directory(dirpath1);
+    char dirpath2[256];
+    snprintf(dirpath2, sizeof(dirpath2), "results/%sresults/%s/", extension, matrix_name);
+    create_directory(dirpath2);
     char filename[256];
     if (extension == NULL)
     {
@@ -60,23 +63,23 @@ int save_result_matrix(char *extension, int number, GrB_Matrix C)
     }
     if (strcmp(extension, "rvv") == 0)
     {
-        snprintf(filename, sizeof(filename), "results/rvvresults/res_%d.txt", number);
+        snprintf(filename, sizeof(filename), "results/rvvresults/%s/res_%d.txt", matrix_name, number);
     }
     else if (strcmp(extension, "norvv") == 0)
     {
-        snprintf(filename, sizeof(filename), "results/norvvresults/res_%d.txt", number);
+        snprintf(filename, sizeof(filename), "results/norvvresults/%s/res_%d.txt", matrix_name, number);
     }
     else if (strcmp(extension, "avx") == 0)
     {
-        snprintf(filename, sizeof(filename), "results/avxresults/res_%d.txt", number);
+        snprintf(filename, sizeof(filename), "results/avxresults/%s/res_%d.txt", matrix_name, number);
     }
     else if (strcmp(extension, "noavx") == 0)
     {
-        snprintf(filename, sizeof(filename), "results/noavxresults/res_%d.txt", number);
+        snprintf(filename, sizeof(filename), "results/noavxresults/%s/res_%d.txt", matrix_name, number);
     }
     else
     {
-        fprintf(stderr, "Error occured while reading file %s\n", extension);
+        fprintf(stderr, "Wrong extension %s\n", extension);
         return 1;
     }
 
@@ -88,20 +91,20 @@ int save_result_matrix(char *extension, int number, GrB_Matrix C)
     }
 
     GxB_Matrix_fprint(C, "C", GxB_COMPLETE, f);
+    printf("Results");
     fclose(f);
     return 0;
 }
 
 int main(int argc, char **argv)
 {
-
     char msg[LAGRAPH_MSG_LEN];
     msg[0] = '\0';
     GrB_Info info;
     GrB_Matrix A, B, C;
 
     GrB_Index nrows, ncols;
-    int test_count = 110;
+    int test_count = 510;
 
     info = GrB_init(GrB_NONBLOCKING);
     if (info != GrB_SUCCESS)
@@ -115,6 +118,7 @@ int main(int argc, char **argv)
     // INITIALIZE MATRICES
     srand(52);
     clock_t start = clock();
+    // sparse matrix
     char path[200];
     snprintf(path, sizeof(path), "matrices/%s/%s.mtx", argv[2], argv[2]);
     FILE *f = fopen(path, "r");
@@ -126,19 +130,13 @@ int main(int argc, char **argv)
         return 1;
     }
     int nonzero_count = get_nonzero_count(path);
-    // int cores = omp_get_num_procs();
-    // printf("cores: %d\n",cores);
-    // int threads = omp_get_max_threads();
-    // printf("threads: %d\n",threads);
-    //  FILE *a = fopen("aoa.txt", "w");
     int result = LAGraph_MMRead(&A, f, msg);
-    //  GxB_Matrix_fprint(A, "A", GxB_COMPLETE, a);
-    //  fclose(a);
     GrB_Matrix_nrows(&nrows, A);
     GrB_Matrix_ncols(&ncols, A);
 
     GrB_Matrix_new(&B, GrB_FP64, nrows, ncols);
     GrB_Matrix_new(&C, GrB_FP64, nrows, ncols);
+    GrB_set(C, GxB_FULL, GxB_SPARSITY_CONTROL);
     // full matrix
     for (GrB_Index i = 0; i < nrows; i++)
     {
@@ -150,7 +148,7 @@ int main(int argc, char **argv)
     }
     GrB_set(B, GxB_FULL, GxB_SPARSITY_CONTROL);
 
-    // result matrix
+    // result matrix (also full)
     for (GrB_Index i = 0; i < nrows; i++)
     {
         for (GrB_Index j = 0; j < ncols; j++)
@@ -161,11 +159,12 @@ int main(int argc, char **argv)
     }
     clock_t end = clock();
     float seconds = (float)(end - start) / CLOCKS_PER_SEC;
+
     printf("==============MATRIX SIZE: %lux%lu==============\n", nrows, ncols);
     printf("==============INITIALIZING TIME: %f==============\n", seconds);
     printf("==============NONZEROES:%d==============\n", nonzero_count);
 
-    // Set Matrices type
+    // set matrices type
 
     // GrB_set(A, GxB_SPARSE, GxB_SPARSITY_CONTROL);
     GrB_set(B, GxB_FULL, GxB_SPARSITY_CONTROL);
@@ -211,47 +210,60 @@ int main(int argc, char **argv)
 
     // run tests
     double average_time = 0.0;
-    printf("=================NUBMER OF TESTS: %d=================\n", test_count);
-    for (int i = 0; i < test_count; i++)
+    // int blocksize=1;
+	// if (nonzero_count<2000) blocksize = 3000;
+	// else if (nonzero_count<50000) blocksize = 1000;
+	// else if (nonzero_count<100000) blocksize = 100;
+	// else if (nonzero_count<150000) blocksize = 10;	
+	
+    printf("=================NUBMER OF TESTS: %d=================\n", test_count - 10);
+    for (int i = 1; i <= test_count; i++)
     {
-        // double element;
-        // GrB_Matrix_extractElement_FP64(&element,C,0,0);
-        // printf("first C element %f\n",element);
         double tmxm = LAGraph_WallClockTime();
-        info = GrB_mxm(C, NULL, GrB_PLUS_FP64, GxB_PLUS_TIMES_FP64, A, B, NULL);
+       // for (int j = 0; j < 30; j++)
+            info = GrB_mxm(C, NULL, GrB_PLUS_FP64, GxB_PLUS_TIMES_FP64, A, B, NULL);
         if (info != GrB_SUCCESS)
         {
+            fclose(f);
+            GrB_Matrix_free(&A);
+            GrB_Matrix_free(&B);
+            GrB_Matrix_free(&C);
+
+            GrB_finalize();
+
             printf("Multiplication failed!\n");
             return 1;
         }
         tmxm = LAGraph_WallClockTime() - tmxm;
-        printf("test %d: time: %f seconds\n", i + 1, tmxm);
-        // printf("%g;\n", tmxm);
+        if (i <= 10)
+            printf("heat-up test %d: time: %.6g seconds\n", i, tmxm);
+        else
+            printf("test %d: time: %.6g seconds\n", i, tmxm);
 
-        // SAVE RESULT MARTIX
-        //  save_result = save_result_matrix(argv[1],i,C);
-        //  if (save_result != 0){
-        //      printf("error occured while saving result matrix");
-        //      return 1;
-        //  }
+        // if (strcmp(argv[3], "save_true"))
+        // {
+        //     int save_result = save_result_matrix(argv[1], argv[2], i, C);
+        //     if (save_result != 0)
+        //     {
+        //         fclose(f);
+        //         GrB_Matrix_free(&A);
+        //         GrB_Matrix_free(&B);
+        //         GrB_Matrix_free(&C);
 
-        for (GrB_Index i = 0; i < nrows; i++)
+        //         GrB_finalize();
+
+        //         fprintf(stderr, "error occured while saving result matrix");
+        //         return 1;
+        //     }
+        // }
+        if (i > 10)
         {
-            for (GrB_Index j = 0; j < ncols; j++)
-            {
-                double value = (double)rand() / RAND_MAX;
-                info = GrB_Matrix_setElement_FP64(C, 0, i, j);
-            }
-        }
-
-        if (i > 9)
-        {
-            average_time += tmxm;
-            fprintf(res, "%g;\n", tmxm);
+            average_time += (tmxm/blocksize);
+            fprintf(res, "%.6g;\n", tmxm);
         }
     }
-    printf("Average time: %g;\n\n\n", average_time / (test_count - 1));
-    fprintf(res, "%f\n", average_time / (test_count - 1));
+    printf("Average time: %.6g;\n\n\n", average_time / (test_count - 10));
+    fprintf(res, "%.6g\n", average_time / (test_count - 10));
     fclose(f);
     GrB_Matrix_free(&A);
     GrB_Matrix_free(&B);
