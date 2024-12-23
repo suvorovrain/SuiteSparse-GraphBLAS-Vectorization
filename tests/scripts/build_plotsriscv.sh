@@ -37,4 +37,11 @@ for link in "${links[@]}"; do
     python3 analyse.py "$filename" norvv 
 done
 
-
+echo "AVERAGE RESULT PLOTS"
+cd "$SUITE_SPARSE_PATH/tests/" || exit
+for link in "${links[@]}"; do
+    base_name=$(basename "$link")
+    filename=${base_name%%.*}
+    echo "Matrix: $filename"
+    python3 average.py "$filename"
+done

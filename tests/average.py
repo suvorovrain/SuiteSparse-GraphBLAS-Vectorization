@@ -6,8 +6,8 @@ filename = sys.argv[1]
 extensions =[
     'avx',
     'noavx',
-    # 'rvv',
-    # 'norvv'
+    'rvv',
+    'norvv'
 ]
 global matrix_name
 global num_rows

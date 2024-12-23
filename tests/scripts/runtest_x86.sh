@@ -21,7 +21,6 @@ https://suitesparse-collection-website.herokuapp.com/MM/Hohn/fd18.tar.gz https:/
 )
 
 save=$1
-
 echo "AVX TESTS"
 cd "$SUITE_SPARSE_PATH/tests/" || exit
 for link in "${links[@]}"; do
@@ -32,7 +31,6 @@ for link in "${links[@]}"; do
 done
 
 echo "NOAVX TESTS"
-cd "$SUITE_SPARSE_PATH/tests/" || exit
 for link in "${links[@]}"; do
     base_name=$(basename "$link")
     filename=${base_name%%.*}

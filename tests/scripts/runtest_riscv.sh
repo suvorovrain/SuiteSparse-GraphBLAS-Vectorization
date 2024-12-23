@@ -32,7 +32,6 @@ done
 
 
 echo "NORVV TESTS"
-cd "$SUITE_SPARSE_PATH/tests/" || exit
 for link in "${links[@]}"; do
     base_name=$(basename "$link")
     filename=${base_name%%.*}

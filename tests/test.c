@@ -258,7 +258,7 @@ int main(int argc, char **argv)
         // }
         if (i > 10)
         {
-            average_time += (tmxm/blocksize);
+            average_time += (tmxm);
             fprintf(res, "%.6g;\n", tmxm);
         }
     }
