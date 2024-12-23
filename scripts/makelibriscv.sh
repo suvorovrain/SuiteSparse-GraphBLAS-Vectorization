@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#TODO: lagraph for riscv
 LIBPATH=$(dirname "$(realpath "$0")")
 source "$LIBPATH/path.env"
 echo "Path to GraphBLAS: $GRAPH_BLAS_PATH"
