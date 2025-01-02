@@ -19,6 +19,7 @@ https://suitesparse-collection-website.herokuapp.com/MM/Hohn/fd18.tar.gz https:/
 # https://suitesparse-collection-website.herokuapp.com/MM/Boeing/bcsstm35.tar.gz https://suitesparse-collection-website.herokuapp.com/MM/TSOPF/TSOPF_FS_b162_c3.tar.gz #30500
 )
 
+
 echo "AVX RESULT PLOTS"
 cd "$SUITE_SPARSE_PATH/tests/" || exit
 for link in "${links[@]}"; do
@@ -37,13 +38,5 @@ for link in "${links[@]}"; do
     python3 analyse.py "$filename" noavx 
 done
 
-echo "AVERAGE RESULT PLOTS"
-cd "$SUITE_SPARSE_PATH/tests/" || exit
-for link in "${links[@]}"; do
-    base_name=$(basename "$link")
-    filename=${base_name%%.*}
-    echo "Matrix: $filename"
-    python3 average.py "$filename"
-done
 
 

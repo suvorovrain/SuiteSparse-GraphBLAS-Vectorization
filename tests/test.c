@@ -91,7 +91,7 @@ int save_result_matrix(char *extension, char *matrix_name, int number, GrB_Matri
     }
 
     GxB_Matrix_fprint(C, "C", GxB_COMPLETE, f);
-    printf("Results");
+    // printf("Results");
     fclose(f);
     return 0;
 }
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
     GrB_Matrix A, B, C;
 
     GrB_Index nrows, ncols;
-    int test_count = 510;
+    int test_count = 15;
 
     info = GrB_init(GrB_NONBLOCKING);
     if (info != GrB_SUCCESS)
@@ -220,7 +220,7 @@ int main(int argc, char **argv)
     for (int i = 1; i <= test_count; i++)
     {
         double tmxm = LAGraph_WallClockTime();
-       // for (int j = 0; j < 30; j++)
+       // for (int j = 0; j < blocksize; j++)
             info = GrB_mxm(C, NULL, GrB_PLUS_FP64, GxB_PLUS_TIMES_FP64, A, B, NULL);
         if (info != GrB_SUCCESS)
         {
@@ -240,22 +240,7 @@ int main(int argc, char **argv)
         else
             printf("test %d: time: %.6g seconds\n", i, tmxm);
 
-        // if (strcmp(argv[3], "save_true"))
-        // {
-        //     int save_result = save_result_matrix(argv[1], argv[2], i, C);
-        //     if (save_result != 0)
-        //     {
-        //         fclose(f);
-        //         GrB_Matrix_free(&A);
-        //         GrB_Matrix_free(&B);
-        //         GrB_Matrix_free(&C);
-
-        //         GrB_finalize();
-
-        //         fprintf(stderr, "error occured while saving result matrix");
-        //         return 1;
-        //     }
-        // }
+        
         if (i > 10)
         {
             average_time += (tmxm);
@@ -264,6 +249,23 @@ int main(int argc, char **argv)
     }
     printf("Average time: %.6g;\n\n\n", average_time / (test_count - 10));
     fprintf(res, "%.6g\n", average_time / (test_count - 10));
+
+    if (!strcmp(argv[3], "save"))
+        {
+            int save_result = save_result_matrix(argv[1], argv[2], 0, C);
+            if (save_result != 0)
+            {
+                fclose(f);
+                GrB_Matrix_free(&A);
+                GrB_Matrix_free(&B);
+                GrB_Matrix_free(&C);
+
+                GrB_finalize();
+
+                fprintf(stderr, "error occured while saving result matrix");
+                return 1;
+            }
+        }
     fclose(f);
     GrB_Matrix_free(&A);
     GrB_Matrix_free(&B);
