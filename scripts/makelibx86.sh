@@ -15,6 +15,6 @@ cmake -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -D
 cmake -DGraphBLAS_DIR="$GRAPH_BLAS_PATH/build-noavx" -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=Release -G Ninja -S "$GRAPH_BLAS_PATH/../LAGraph" -B "$GRAPH_BLAS_PATH/../LAGraph/build-noavx/"
 
 echo "Build library without AVX."
-cmake --build "$GRAPH_BLAS_PATH/../LAGraph/build-noavx/" --parallel "$(nproc)"
 cmake --build "$GRAPH_BLAS_PATH/build-noavx" --parallel "$(nproc)"
+cmake --build "$GRAPH_BLAS_PATH/../LAGraph/build-noavx/" --parallel "$(nproc)"
 
