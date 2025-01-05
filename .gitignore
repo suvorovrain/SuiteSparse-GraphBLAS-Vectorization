@@ -4,6 +4,7 @@ benchmarks/noavx
 tests/binaries
 tests/matrices
 tests/results
+tests/measurements
 .vscode
 tests/venv
 tests/aoa.txt
