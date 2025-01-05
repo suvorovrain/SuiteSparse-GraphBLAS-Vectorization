@@ -104,12 +104,12 @@ int main(int argc, char **argv)
     GrB_Matrix A, B, C;
 
     GrB_Index nrows, ncols;
-    int test_count = 15;
+    int test_count = 510;
 
     info = GrB_init(GrB_NONBLOCKING);
     if (info != GrB_SUCCESS)
     {
-        printf("Initialization failed!\n");
+        fprintf(stderr,"Initialization failed!\n");
         GrB_finalize();
         return 1;
     }
@@ -231,7 +231,7 @@ int main(int argc, char **argv)
 
             GrB_finalize();
 
-            printf("Multiplication failed!\n");
+            fprintf(stderr, "Multiplication failed!\n");
             return 1;
         }
         tmxm = LAGraph_WallClockTime() - tmxm;

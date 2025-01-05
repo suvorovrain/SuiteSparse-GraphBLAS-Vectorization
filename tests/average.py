@@ -2,6 +2,7 @@ import os
 import matplotlib.pyplot as plt
 from decimal import Decimal,getcontext
 from matplotlib.font_manager import FontProperties
+import numpy as np
 
 
 matrices=[
@@ -35,13 +36,13 @@ matrices=[
     ['reorientation_2', 0, 0,0,0,0,0],
     ['netscience', 0, 0,0,0,0,0],
 
-    ['olm1000', 0, 0,0,0,0,0],
     ['collins_15NN', 0, 0,0,0,0,0],
+    ['olm1000', 0, 0,0,0,0,0],
 
     ['mcfe', 0, 0,0,0,0,0],
     ['orbitRaising_3', 0, 0,0,0,0,0],
     
-    ['tomography', 0, 0,0,0,0,0]
+    # ['tomography', 0, 0,0,0,0,0]
 ]
 
 extensions =[
@@ -83,18 +84,19 @@ for filename in matrices:
 matrices_name = [x[0] for x in matrices]
 matrices_rows = [x[1] for x in matrices]
 matrices_nz = [x[2] for x in matrices]
-matrices_avx = [x[3] for x in matrices]
-matrices_noavx = [x[4] for x in matrices]
-matrices_rvv = [x[5] for x in matrices]
-matrices_norvv = [x[6] for x in matrices]
+matrices_avx = [np.round(np.float64(x[3]),5) for x in matrices]
+matrices_noavx = [np.round(np.float64(x[4]),5) for x in matrices]
+matrices_rvv = [np.round(np.float64(x[5]),5) for x in matrices]
+matrices_norvv = [np.round(np.float64(x[6]),5) for x in matrices]
 
 table_data = []
 for i in range(len(matrices_name)):
     avx_speedup = (matrices_noavx[i] - matrices_avx[i]) / matrices_noavx[i] * 100 if matrices_noavx[i] != 0 else 0
     rvv_speedup = (matrices_norvv[i] - matrices_rvv[i]) / matrices_norvv[i] * 100 if matrices_norvv[i] != 0 else 0
-
-    row = [f'{matrices_name[i]}']
-    row.extend([matrices_rows[i],matrices_nz[i],matrices_avx[i], matrices_noavx[i], matrices_rvv[i], matrices_norvv[i], avx_speedup, rvv_speedup])
+    avx_speedup = np.round(np.float64(avx_speedup),5)
+    rvv_speedup = np.round(np.float64(rvv_speedup),5)
+    row = [f'{i+1}']
+    row.extend([matrices_name[i],matrices_rows[i],matrices_nz[i],matrices_avx[i], matrices_noavx[i], matrices_rvv[i], matrices_norvv[i], avx_speedup, rvv_speedup])
     table_data.append(row)
 
 font = FontProperties()
@@ -104,7 +106,7 @@ font.set_name('Times New Roman')
 fig, ax = plt.subplots(figsize=(12, 10))
 
 table = ax.table(cellText=table_data,
-                colLabels=['Matrix name','Rows number' ,'Nonzeros' ,'AVX (s.)', 'No AVX (s.)', 'RVV (s.)', 'No RVV (s.)', 'AVX Speedup (%)', 'RVV Speedup (%)'],
+                colLabels=['№','Matrix name','Rows number' ,'Nonzeros' ,'AVX (s.)', 'No AVX (s.)', 'RVV (s.)', 'No RVV (s.)', 'AVX Speedup (%)', 'RVV Speedup (%)'],
                 loc='center', cellLoc='center')
 
 table.auto_set_font_size(False)
@@ -116,20 +118,23 @@ for (i, j), cell in table.get_celld().items():
         cell.set_text_props(wrap=True, font='serif', fontsize=10)
     else:
         cell.set_text_props(wrap=True, font='serif', fontsize=14)
-    if j == 0:
-        cell.set_width(0.13)
+    if j == 1:
+        cell.set_width(0.17)
+        cell.set_text_props(wrap=True, font='serif', fontsize=11)
+    elif j == 0:
+        cell.set_width(0.05)
         cell.set_text_props(wrap=True, font='serif', fontsize=11)
         
-    if j == 8 and i != 0:
-        avx_speedup = float(table_data[i-1][7])
-        rvv_speedup = float(table_data[i-1][8])
+    if j == 9 and i != 0:
+        avx_speedup = float(table_data[i-1][8])
+        rvv_speedup = float(table_data[i-1][9])
         if rvv_speedup < 0:
             cell.set_facecolor('red')
         elif rvv_speedup > avx_speedup:
             cell.set_facecolor('lightgreen')
         else:
             cell.set_facecolor('lightcoral')
-    if  j>0:
+    if  j>1:
         cell.set_width(0.11)
     cell.set_height(0.04)
     cell.set_text_props()
