@@ -29,4 +29,4 @@ Build SuiteSparse with and without RVV
 ```sh
 /scripts/makelibriscv.sh
 ``` 
-For testsrunnning see /test/README.md
+For run tests see /test/README.md
