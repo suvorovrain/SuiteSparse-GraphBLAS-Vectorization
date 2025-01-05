@@ -1,5 +1,3 @@
-Scripts for running SuiteSparse AVX benchmarks
-
 This repository contains necessary utils scripts for launching and analyzing matrix multiplication from library [SuiteSparse:GraphBLAS](https://github.com/DrTimothyAldenDavis/SuiteSparse/tree/dev/GraphBLAS) with [RVV1.0](https://github.com/riscvarchive/riscv-v-spec/blob/master/v-spec.adoc) vector extension of [RISC-V](https://riscv.org/) architecture
 
 # Installation Guide:
