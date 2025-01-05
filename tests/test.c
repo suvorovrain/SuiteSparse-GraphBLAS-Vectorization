@@ -104,12 +104,12 @@ int main(int argc, char **argv)
     GrB_Matrix A, B, C;
 
     GrB_Index nrows, ncols;
-    int test_count = 510;
+    int test_count = 510; // Number of tests. n + 10 for heat-up.
 
     info = GrB_init(GrB_NONBLOCKING);
     if (info != GrB_SUCCESS)
     {
-        fprintf(stderr,"Initialization failed!\n");
+        fprintf(stderr, "Initialization failed!\n");
         GrB_finalize();
         return 1;
     }
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
     GrB_get(C, &sparsityC, GxB_SPARSITY_STATUS);
     printf("C matrix type: %d\n", sparsityC);
 
-    // folder for measure results
+    // folder for results of measurement
     char resultpath[261];
     char dirpath[256];
     snprintf(dirpath, sizeof(dirpath), "measurements/%s%s", argv[1], argv[2]);
@@ -210,18 +210,12 @@ int main(int argc, char **argv)
 
     // run tests
     double average_time = 0.0;
-    // int blocksize=1;
-	// if (nonzero_count<2000) blocksize = 3000;
-	// else if (nonzero_count<50000) blocksize = 1000;
-	// else if (nonzero_count<100000) blocksize = 100;
-	// else if (nonzero_count<150000) blocksize = 10;	
-	
+
     printf("=================NUBMER OF TESTS: %d=================\n", test_count - 10);
     for (int i = 1; i <= test_count; i++)
     {
         double tmxm = LAGraph_WallClockTime();
-       // for (int j = 0; j < blocksize; j++)
-            info = GrB_mxm(C, NULL, GrB_PLUS_FP64, GxB_PLUS_TIMES_FP64, A, B, NULL);
+        info = GrB_mxm(C, NULL, GrB_PLUS_FP64, GxB_PLUS_TIMES_FP64, A, B, NULL);
         if (info != GrB_SUCCESS)
         {
             fclose(f);
@@ -240,7 +234,6 @@ int main(int argc, char **argv)
         else
             printf("test %d: time: %.6g seconds\n", i, tmxm);
 
-        
         if (i > 10)
         {
             average_time += (tmxm);
@@ -250,22 +243,23 @@ int main(int argc, char **argv)
     printf("Average time: %.6g;\n\n\n", average_time / (test_count - 10));
     fprintf(res, "%.6g\n", average_time / (test_count - 10));
 
+    // save result matrix for future comparison
     if (!strcmp(argv[3], "save"))
+    {
+        int save_result = save_result_matrix(argv[1], argv[2], 0, C);
+        if (save_result != 0)
         {
-            int save_result = save_result_matrix(argv[1], argv[2], 0, C);
-            if (save_result != 0)
-            {
-                fclose(f);
-                GrB_Matrix_free(&A);
-                GrB_Matrix_free(&B);
-                GrB_Matrix_free(&C);
+            fclose(f);
+            GrB_Matrix_free(&A);
+            GrB_Matrix_free(&B);
+            GrB_Matrix_free(&C);
 
-                GrB_finalize();
+            GrB_finalize();
 
-                fprintf(stderr, "error occured while saving result matrix");
-                return 1;
-            }
+            fprintf(stderr, "error occured while saving result matrix");
+            return 1;
         }
+    }
     fclose(f);
     GrB_Matrix_free(&A);
     GrB_Matrix_free(&B);
