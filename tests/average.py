@@ -55,7 +55,9 @@ global matrix_name
 global num_rows
 global num_nonzero 
 average=[]
+boxplotdata=[]
 for filename in matrices:
+    boxplotdata=[]
     for extension in extensions:
         path = (f'measurements/{extension}{filename[0]}/{filename[0]}.txt')
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -65,6 +67,12 @@ for filename in matrices:
             data = file.read().strip().split(';')
         filename[1] = int(data[1])
         filename[2] = int(data[2])
+        newdata=[np.float64(x[1:])*1000 for x in data[3:-1]]
+        boxplotdata.append(newdata)
+        
+        # boxplotdata=newdata
+        # plt.boxplot(boxplotdata)
+        # plt.savefig("boxplot")
         avg_time = Decimal(data[-1]) if data[-1] else None
         getcontext().prec=6
         if extension == 'avx':
@@ -78,25 +86,37 @@ for filename in matrices:
         else:
             print("error")
             exit
+    plt.figure(figsize=(8, 6))
+    plt.title(filename[0])
+    plt.ylabel('Time ms.')
+    plt.boxplot(boxplotdata)
+    plt.xticks([1, 2, 3, 4], ['AVX', 'NOAVX', 'RVV', 'NORVV'])
+    plt.savefig(f"normal/{filename[0]}")
+    plt.close()
         
         # average.append(avg_time)
+
 
 matrices_name = [x[0] for x in matrices]
 matrices_rows = [x[1] for x in matrices]
 matrices_nz = [x[2] for x in matrices]
-matrices_avx = [np.round(np.float64(x[3]),5) for x in matrices]
-matrices_noavx = [np.round(np.float64(x[4]),5) for x in matrices]
-matrices_rvv = [np.round(np.float64(x[5]),5) for x in matrices]
-matrices_norvv = [np.round(np.float64(x[6]),5) for x in matrices]
-
+matrices_avx = [np.round(np.float64(x[3])*1000,5) for x in matrices]
+matrices_noavx = [np.round(np.float64(x[4])*1000,5) for x in matrices]
+matrices_rvv = [np.round(np.float64(x[5])*1000,5) for x in matrices]
+matrices_norvv = [np.round(np.float64(x[6])*1000,5) for x in matrices]
+rvv_speedupar = []
+avx_speedupar = []
 table_data = []
 for i in range(len(matrices_name)):
     avx_speedup = (matrices_noavx[i] - matrices_avx[i]) / matrices_noavx[i] * 100 if matrices_noavx[i] != 0 else 0
     rvv_speedup = (matrices_norvv[i] - matrices_rvv[i]) / matrices_norvv[i] * 100 if matrices_norvv[i] != 0 else 0
-    avx_speedup = np.round(np.float64(avx_speedup),5)
-    rvv_speedup = np.round(np.float64(rvv_speedup),5)
+    avx_speedup = np.round(np.float64(avx_speedup),1)
+    rvv_speedup = np.round(np.float64(rvv_speedup),1)
+    rvv_speedupar.append(rvv_speedup)
+    avx_speedupar.append(avx_speedup)
+    coef = np.round(np.float64(matrices_nz[i]/(matrices_rows[i]*matrices_rows[i])),5)
     row = [f'{i+1}']
-    row.extend([matrices_name[i],matrices_rows[i],matrices_nz[i],matrices_avx[i], matrices_noavx[i], matrices_rvv[i], matrices_norvv[i], avx_speedup, rvv_speedup])
+    row.extend([matrices_name[i],matrices_rows[i],matrices_nz[i],matrices_avx[i], matrices_noavx[i], matrices_rvv[i], matrices_norvv[i], avx_speedup, rvv_speedup,coef])
     table_data.append(row)
 
 font = FontProperties()
@@ -106,11 +126,18 @@ font.set_name('Times New Roman')
 fig, ax = plt.subplots(figsize=(12, 10))
 
 table = ax.table(cellText=table_data,
-                colLabels=['№','Matrix name','Rows number' ,'Nonzeros' ,'AVX (s.)', 'No AVX (s.)', 'RVV (s.)', 'No RVV (s.)', 'AVX Speedup (%)', 'RVV Speedup (%)'],
+                colLabels=['№','Matrix name','Rows number' ,'Nonzeros' ,'AVX (ms.)', 'No AVX (ms.)', 'RVV (ms.)', 'No RVV (ms.)', 'AVX Speedup (%)', 'RVV Speedup (%)','coef'],
                 loc='center', cellLoc='center')
 
 table.auto_set_font_size(False)
 table.set_fontsize(10)
+for i in range(24):
+    print(i,":",matrices_avx[i],"&",matrices_noavx[i],"&",matrices_rvv[i],"&",matrices_norvv[i],"&",avx_speedupar[i],"&",rvv_speedupar[i])
+
+# print("NOAVX:",[float(x) for x in matrices_noavx])
+# print("AVX:",[float(x) for x in matrices_avx])
+# print("NORVV:",[float(x) for x in matrices_rvv])
+# print("RVV:",[float(x) for x in matrices_norvv])
 
 for (i, j), cell in table.get_celld().items():
     if i == 0:

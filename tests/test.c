@@ -158,7 +158,7 @@ int main(int argc, char **argv)
         }
     }
     clock_t end = clock();
-    float seconds = (float)(end - start) / CLOCKS_PER_SEC;
+    double seconds = (double)(end - start) / CLOCKS_PER_SEC;
 
     printf("==============MATRIX SIZE: %lux%lu==============\n", nrows, ncols);
     printf("==============INITIALIZING TIME: %f==============\n", seconds);

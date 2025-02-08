@@ -1,7 +1,8 @@
 LIBPATH=$(dirname "$(realpath "$0")")
 source "$LIBPATH/path.env"
 
-links=(https://suitesparse-collection-website.herokuapp.com/MM/Bai/olm500.tar.gz https://suitesparse-collection-website.herokuapp.com/MM/MathWorks/tomography.tar.gz #500
+links=(
+    https://suitesparse-collection-website.herokuapp.com/MM/Bai/olm500.tar.gz https://suitesparse-collection-website.herokuapp.com/MM/MathWorks/tomography.tar.gz #500
 https://suitesparse-collection-website.herokuapp.com/MM/VDOL/orbitRaising_3.tar.gz https://suitesparse-collection-website.herokuapp.com/MM/HB/mcfe.tar.gz #750
 https://suitesparse-collection-website.herokuapp.com/MM/ML_Graph/collins_15NN.tar.gz https://suitesparse-collection-website.herokuapp.com/MM/Bai/olm1000.tar.gz #1000
 https://suitesparse-collection-website.herokuapp.com/MM/VDOL/reorientation_2.tar.gz https://suitesparse-collection-website.herokuapp.com/MM/Newman/netscience.tar.gz #1500

@@ -19,6 +19,10 @@ https://suitesparse-collection-website.herokuapp.com/MM/Hohn/fd18.tar.gz https:/
 # https://suitesparse-collection-website.herokuapp.com/MM/Boeing/bcsstm37.tar.gz https://suitesparse-collection-website.herokuapp.com/MM/TSOPF/TSOPF_RS_b2052_c1.tar.gz #25500
 # https://suitesparse-collection-website.herokuapp.com/MM/Boeing/bcsstm35.tar.gz https://suitesparse-collection-website.herokuapp.com/MM/TSOPF/TSOPF_FS_b162_c3.tar.gz #30500
 )
+
+
+
+
 save=$1
 echo "RVV TESTS"
 cd "$SUITE_SPARSE_PATH/tests/" || exit
@@ -29,8 +33,6 @@ for link in "${links[@]}"; do
     qemu-riscv64 -L /opt/riscv/sysroot -E LD_LIBRARY_PATH="$GRAPH_BLAS_PATH/build-rvv/":"$GRAPH_BLAS_PATH/../LAGraph/build-rvv/":/opt/riscv/sysroot/ "$SUITE_SPARSE_PATH/tests/binaries/testrvv" rvv "$filename" "$save"
 done
 
-
-
 echo "NORVV TESTS"
 for link in "${links[@]}"; do
     base_name=$(basename "$link")
@@ -38,5 +40,8 @@ for link in "${links[@]}"; do
     echo "Matrix: $filename"
     qemu-riscv64 -L /opt/riscv/sysroot -E LD_LIBRARY_PATH="$GRAPH_BLAS_PATH/build-norvv/":"$GRAPH_BLAS_PATH/../LAGraph/build-norvv/":/opt/riscv/sysroot/ "$SUITE_SPARSE_PATH/tests/binaries/testnorvv" norvv "$filename" "$save"
 done
+
+
+
 
 
