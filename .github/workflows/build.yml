@@ -1,0 +1,54 @@
+name: Build
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+    branches:
+      - main
+  
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y cmake gcc g++ make ninja-build libopenblas-dev ccache
+        
+    - name: Install SuiteSparse
+      run: |
+        source ./scripts/path.env
+        echo "creating folder for SuiteSpatse library"
+        echo "path: $SUITE_SPARSE_PATH/SuiteSparse"
+        mkdir "$SUITE_SPARSE_PATH/SuiteSparse"
+        git clone https://github.com/suvorovrain/SuiteSparse.git -b riscv64rvv --depth 1 "$SUITE_SPARSE_PATH/SuiteSparse"
+
+    - name: Build GraphBLAS with AVX
+      run: |
+        source ./scripts/path.env
+        echo "Path to GraphBLAS: $GRAPH_BLAS_PATH"
+        
+        cmake -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=Release -DGBNCPUFEAT=1 -DGBAVX2=1 -DGBX86=1 -G Ninja -S "$GRAPH_BLAS_PATH" -B "$GRAPH_BLAS_PATH/build-avx"
+        cmake --build "$GRAPH_BLAS_PATH/build-avx" --parallel $(nproc)
+
+    - name: Build GraphBLAS without AVX
+      run: |
+        source ./scripts/path.env
+        cmake -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=Release -DGBNCPUFEAT=1 -DGBAVX2=0 -DGBX86=1 -G Ninja -S "$GRAPH_BLAS_PATH" -B "$GRAPH_BLAS_PATH/build-noavx"
+        cmake --build "$GRAPH_BLAS_PATH/build-noavx" --parallel $(nproc)
+
+    - name: Build LAGraph with AVX
+      run: |
+        source ./scripts/path.env
+        cmake -DGraphBLAS_DIR="$GRAPH_BLAS_PATH/build-avx" -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=Release -G Ninja -S "$GRAPH_BLAS_PATH/../LAGraph" -B "$GRAPH_BLAS_PATH/../LAGraph/build-avx/"
+        cmake --build "$GRAPH_BLAS_PATH/../LAGraph/build-avx/" --parallel $(nproc)
+
+    - name: Build LAGraph without AVX
+      run: |
+        source ./scripts/path.env
+        cmake -DGraphBLAS_DIR="$GRAPH_BLAS_PATH/build-noavx" -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=Release -G Ninja -S "$GRAPH_BLAS_PATH/../LAGraph" -B "$GRAPH_BLAS_PATH/../LAGraph/build-noavx/"
+        cmake --build "$GRAPH_BLAS_PATH/../LAGraph/build-noavx/" --parallel $(nproc)
