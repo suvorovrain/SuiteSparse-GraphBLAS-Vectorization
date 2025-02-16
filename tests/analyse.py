@@ -25,6 +25,12 @@ def read_and_plot(filename):
     shapiro_test = stats.shapiro(numbers)
     mean = np.mean(numbers)
     std_dev = np.std(numbers,ddof=1)
+    stdnorm = std_dev/(np.float64(data[-1]))
+    print(stdnorm)
+    if stdnorm > 0.1:
+        print(f'{filename}: bad stddev')
+    
+
     confidence_interval = stats.t.ppf(0.975, df=len(numbers)-1)*stats.sem(numbers)
     analysis_filename = os.path.splitext(filename)[0] + '_analysis.txt'
     with open(os.path.join(current_dir,analysis_filename), 'w') as f:

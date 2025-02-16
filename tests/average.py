@@ -116,7 +116,7 @@ for i in range(len(matrices_name)):
     avx_speedupar.append(avx_speedup)
     coef = np.round(np.float64(matrices_nz[i]/(matrices_rows[i]*matrices_rows[i])),5)
     row = [f'{i+1}']
-    row.extend([matrices_name[i],matrices_rows[i],matrices_nz[i],matrices_avx[i], matrices_noavx[i], matrices_rvv[i], matrices_norvv[i], avx_speedup, rvv_speedup,coef])
+    row.extend([matrices_name[i],matrices_rows[i],matrices_nz[i],matrices_avx[i], matrices_noavx[i], matrices_rvv[i], matrices_norvv[i], avx_speedup, rvv_speedup])
     table_data.append(row)
 
 font = FontProperties()
@@ -126,7 +126,7 @@ font.set_name('Times New Roman')
 fig, ax = plt.subplots(figsize=(12, 10))
 
 table = ax.table(cellText=table_data,
-                colLabels=['№','Matrix name','Rows number' ,'Nonzeros' ,'AVX (ms.)', 'No AVX (ms.)', 'RVV (ms.)', 'No RVV (ms.)', 'AVX Speedup (%)', 'RVV Speedup (%)','coef'],
+                colLabels=['№','Matrix name','Rows number' ,'Nonzeros' ,'AVX (ms.)', 'No AVX (ms.)', 'RVV (ms.)', 'No RVV (ms.)', 'AVX Speedup (%)', 'RVV Speedup (%)'],
                 loc='center', cellLoc='center')
 
 table.auto_set_font_size(False)
